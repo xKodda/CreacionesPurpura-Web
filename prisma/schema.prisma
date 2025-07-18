@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  role      String   @default("cliente") // 'admin' o 'cliente'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+  auditLogs AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  action    String
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  details   String?
+}
+
+model Product {
+  id              String         @id @default(uuid())
+  name            String
+  description     String?
+  price           Int
+  stock           Int            @default(0)
+  minStock        Int            @default(5)  // Stock mínimo para alertas
+  maxStock        Int?           // Stock máximo opcional
+  imageUrl        String?
+  active          Boolean        @default(true)
+  sku             String?        @unique // Código de producto único
+  barcode         String?        // Código de barras
+  weight          Float?         // Peso en gramos
+  dimensions      String?        // Dimensiones (LxAxA)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  category        Category?      @relation(fields: [categoryId], references: [id])
+  categoryId      String?
+  images          ProductImage[]
+  stockHistory    StockHistory[]
+  orderItems      OrderItem[]
+  views           Int            @default(0)  // Contador de vistas
+  lastViewed      DateTime?      // Última vez que se vio
+  featured        Boolean        @default(false) // Producto destacado
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  products    Product[]
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  url       String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model StockHistory {
+  id          String   @id @default(uuid())
+  product     Product  @relation(fields: [productId], references: [id])
+  productId   String
+  change      Int      // Cambio en stock (positivo o negativo)
+  previousStock Int    // Stock anterior
+  newStock    Int      // Stock después del cambio
+  reason      String   // Razón del cambio (venta, reposición, ajuste, etc.)
+  notes       String?  // Notas adicionales
+  createdAt   DateTime @default(now())
+  createdBy   String?  // Quién hizo el cambio (email del usuario)
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  status     String      @default("pending")
+  total      Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  items      OrderItem[]
+  
+  // Datos del cliente para envío
+  customerName    String?
+  customerEmail   String?
+  customerPhone   String?
+  shippingAddress String?
+  shippingRegion  String?
+  shippingComuna  String?
+  shippingPostalCode String?
+  
+  // Datos de WebPay
+  webpayOrderId   String?  // ID de orden para WebPay
+  webpayToken     String?  // Token de transacción WebPay
+  webpayStatus    String?  // Estado de la transacción WebPay
+  webpayResponseCode Int?  // Código de respuesta de WebPay
+  webpayAuthorizationCode String? // Código de autorización
+  webpayPaymentType String? // Tipo de pago (VD, VN, etc.)
+  webpayInstallments Int?   // Número de cuotas
+  webpayTransactionDate DateTime? // Fecha de la transacción
+  
+  // Notas y comentarios
+  notes           String?
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Int
+}
+
+model Region {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  comunas Comuna[]
+}
+
+model Comuna {
+  id       String   @id @default(uuid())
+  name     String
+  region   Region   @relation(fields: [regionId], references: [id])
+  regionId String
+
+  @@unique([name, regionId])
+}

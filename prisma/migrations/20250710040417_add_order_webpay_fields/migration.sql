@@ -1,0 +1,17 @@
+-- AlterTable
+ALTER TABLE "Order" ADD COLUMN     "customerEmail" TEXT,
+ADD COLUMN     "customerName" TEXT,
+ADD COLUMN     "customerPhone" TEXT,
+ADD COLUMN     "notes" TEXT,
+ADD COLUMN     "shippingAddress" TEXT,
+ADD COLUMN     "shippingComuna" TEXT,
+ADD COLUMN     "shippingPostalCode" TEXT,
+ADD COLUMN     "shippingRegion" TEXT,
+ADD COLUMN     "webpayAuthorizationCode" TEXT,
+ADD COLUMN     "webpayInstallments" INTEGER,
+ADD COLUMN     "webpayOrderId" TEXT,
+ADD COLUMN     "webpayPaymentType" TEXT,
+ADD COLUMN     "webpayResponseCode" INTEGER,
+ADD COLUMN     "webpayStatus" TEXT,
+ADD COLUMN     "webpayToken" TEXT,
+ADD COLUMN     "webpayTransactionDate" TIMESTAMP(3);
