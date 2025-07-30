@@ -34,73 +34,75 @@ export default function HomePage() {
       <AnimatedHero />
 
       {/* Swiper de productos destacados justo debajo del hero */}
-      <section className="py-16 bg-brand-fondoSec">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-brand-principal">Productos Destacados</h2>
-            <Link 
-              href="/productos" 
-              className="flex items-center text-brand-acento hover:text-brand-principal font-semibold"
-            >
-              Ver todos <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+      {featuredProducts.length > 0 && (
+        <section className="py-16 bg-brand-fondoSec">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold text-brand-principal">Productos Destacados</h2>
+              <Link 
+                href="/productos" 
+                className="flex items-center text-brand-acento hover:text-brand-principal font-semibold"
+              >
+                Ver todos <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+            <div className="relative">
+              <Swiper
+                modules={[Navigation, Autoplay]}
+                spaceBetween={24}
+                slidesPerView={1}
+                breakpoints={{
+                  640: { slidesPerView: 2, spaceBetween: 24 },
+                  1024: { slidesPerView: 3, spaceBetween: 32 },
+                }}
+                loop={true}
+                navigation={isDesktop ? { prevEl: prevRef.current, nextEl: nextRef.current } : false}
+                autoplay={{ delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                speed={900}
+                className="w-full"
+                style={{ padding: '0 2.5rem' }}
+                onInit={(swiper) => {
+                  // @ts-ignore
+                  swiper.params.navigation.prevEl = prevRef.current;
+                  // @ts-ignore
+                  swiper.params.navigation.nextEl = nextRef.current;
+                  swiper.navigation.init();
+                  swiper.navigation.update();
+                }}
+              >
+                {featuredProducts.map((product) => (
+                  <SwiperSlide key={product.id} className="flex justify-center">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                      <AnimatedProductCard product={product} />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              {/* Flechas solo en desktop */}
+              {isDesktop && (
+                <>
+                  <button
+                    ref={prevRef}
+                    className="swiper-prev hidden md:flex items-center justify-center w-10 h-10 bg-white rounded-full shadow absolute left-0 top-1/2 -translate-y-1/2 z-10"
+                    aria-label="Anterior"
+                    type="button"
+                  >
+                    <ArrowRight className="h-5 w-5 rotate-180 text-brand-acento" />
+                  </button>
+                  <button
+                    ref={nextRef}
+                    className="swiper-next hidden md:flex items-center justify-center w-10 h-10 bg-white rounded-full shadow absolute right-0 top-1/2 -translate-y-1/2 z-10"
+                    aria-label="Siguiente"
+                    type="button"
+                  >
+                    <ArrowRight className="h-5 w-5 text-brand-acento" />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-          <div className="relative">
-            <Swiper
-              modules={[Navigation, Autoplay]}
-              spaceBetween={24}
-              slidesPerView={1}
-              breakpoints={{
-                640: { slidesPerView: 2, spaceBetween: 24 },
-                1024: { slidesPerView: 3, spaceBetween: 32 },
-              }}
-              loop={true}
-              navigation={isDesktop ? { prevEl: prevRef.current, nextEl: nextRef.current } : false}
-              autoplay={{ delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true }}
-              speed={900}
-              className="w-full"
-              style={{ padding: '0 2.5rem' }}
-              onInit={(swiper) => {
-                // @ts-ignore
-                swiper.params.navigation.prevEl = prevRef.current;
-                // @ts-ignore
-                swiper.params.navigation.nextEl = nextRef.current;
-                swiper.navigation.init();
-                swiper.navigation.update();
-              }}
-            >
-              {featuredProducts.map((product) => (
-                <SwiperSlide key={product.id} className="flex justify-center">
-                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <AnimatedProductCard product={product} />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            {/* Flechas solo en desktop */}
-            {isDesktop && (
-              <>
-                <button
-                  ref={prevRef}
-                  className="swiper-prev hidden md:flex items-center justify-center w-10 h-10 bg-white rounded-full shadow absolute left-0 top-1/2 -translate-y-1/2 z-10"
-                  aria-label="Anterior"
-                  type="button"
-                >
-                  <ArrowRight className="h-5 w-5 rotate-180 text-brand-acento" />
-                </button>
-                <button
-                  ref={nextRef}
-                  className="swiper-next hidden md:flex items-center justify-center w-10 h-10 bg-white rounded-full shadow absolute right-0 top-1/2 -translate-y-1/2 z-10"
-                  aria-label="Siguiente"
-                  type="button"
-                >
-                  <ArrowRight className="h-5 w-5 text-brand-acento" />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* New Products */}
       {newProducts.length > 0 && (

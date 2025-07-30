@@ -47,6 +47,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
         stock: parseInt(data.stock),
         imageUrl: data.imageUrl,
         categoryId: data.categoryId,
+        featured: data.featured !== undefined ? Boolean(data.featured) : currentProduct.featured,
         minStock: data.minStock ? parseInt(data.minStock) : 5,
         maxStock: data.maxStock ? parseInt(data.maxStock) : null,
         sku: data.sku || null,

@@ -2,13 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useProducts } from '@/hooks/useProducts';
-import ProductCard from './ProductCard';
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function AnimatedHero() {
-  const { featuredProducts, loading } = useProducts();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [scrollIndex, setScrollIndex] = useState(0);
   const visibleCards = 4; // Cambia según el tamaño de pantalla si quieres

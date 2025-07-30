@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -41,7 +42,7 @@ export default function LoginPage() {
         {success && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-fondoSec border-2 border-brand-acento rounded-2xl z-10 animate-toast-in shadow-lg">
             <CheckCircle className="h-10 w-10 text-brand-acento mb-2" />
-            <span className="text-brand-principal font-semibold text-lg text-center">Bienvenida Karen, ingresando...</span>
+            <span className="text-brand-principal font-semibold text-lg text-center">¡Bienvenido! Ingresando...</span>
           </div>
         )}
         <h1 className="text-2xl font-bold text-brand-principal mb-6 text-center">Iniciar Sesión</h1>
@@ -90,6 +91,15 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            ¿No tienes una cuenta?{" "}
+            <Link href="/register" className="text-brand-acento hover:text-brand-principal font-medium">
+              Crear cuenta
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

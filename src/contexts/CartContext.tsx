@@ -28,12 +28,15 @@ const initialState: CartState = {
 };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
+  // Asegurar que state.items siempre sea un array
+  const currentItems = state.items || [];
+  
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existingItem = state.items.find(item => item.product.id === action.payload.id);
+      const existingItem = currentItems.find(item => item.product.id === action.payload.id);
       
       if (existingItem) {
-        const updatedItems = state.items.map(item =>
+        const updatedItems = currentItems.map(item =>
           item.product.id === action.payload.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
@@ -46,7 +49,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
           itemCount: updatedItems.reduce((sum, item) => sum + item.quantity, 0),
         };
       } else {
-        const newItems = [...state.items, { product: action.payload, quantity: 1 }];
+        const newItems = [...currentItems, { product: action.payload, quantity: 1 }];
         
         return {
           ...state,
@@ -58,7 +61,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
     
     case 'REMOVE_ITEM': {
-      const updatedItems = state.items.filter(item => item.product.id !== action.payload);
+      const updatedItems = currentItems.filter(item => item.product.id !== action.payload);
       
       return {
         ...state,
@@ -69,7 +72,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
     
     case 'UPDATE_QUANTITY': {
-      const updatedItems = state.items.map(item =>
+      const updatedItems = currentItems.map(item =>
         item.product.id === action.payload.productId
           ? { ...item, quantity: Math.max(0, action.payload.quantity) }
           : item
@@ -87,7 +90,15 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return initialState;
       
     case 'LOAD_CART':
-      return action.payload;
+      // Validar que el payload tenga la estructura correcta
+      if (action.payload && typeof action.payload === 'object') {
+        return {
+          items: Array.isArray(action.payload.items) ? action.payload.items : [],
+          total: typeof action.payload.total === 'number' ? action.payload.total : 0,
+          itemCount: typeof action.payload.itemCount === 'number' ? action.payload.itemCount : 0,
+        };
+      }
+      return initialState;
       
     default:
       return state;
@@ -113,9 +124,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
-        dispatch({ type: 'LOAD_CART', payload: parsedCart });
+        // Validar que el carrito tenga la estructura correcta
+        if (parsedCart && typeof parsedCart === 'object') {
+          const validCart: CartState = {
+            items: Array.isArray(parsedCart.items) ? parsedCart.items : [],
+            total: typeof parsedCart.total === 'number' ? parsedCart.total : 0,
+            itemCount: typeof parsedCart.itemCount === 'number' ? parsedCart.itemCount : 0,
+          };
+          dispatch({ type: 'LOAD_CART', payload: validCart });
+        }
       } catch (error) {
         console.error('Error loading cart from localStorage:', error);
+        // Si hay error, limpiar el localStorage corrupto
+        localStorage.removeItem('cart');
       }
     }
   }, []);

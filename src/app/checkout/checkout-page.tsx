@@ -45,8 +45,8 @@ export default function CheckoutPage() {
       setLoadingRegiones(true);
       try {
         const res = await fetch('/api/regiones');
-        const data = await res.json();
-        setRegiones(data.regiones || []);
+              const data = await res.json();
+      setRegiones(data || []);
       } catch (e) {
         setRegiones([]);
       } finally {
@@ -194,8 +194,21 @@ export default function CheckoutPage() {
 
       console.log('🚀 Iniciando pago con WebPay:', paymentData);
       
-      // Crear transacción en WebPay
-      const webpayResponse = await WebPayService.createTransaction(paymentData);
+      // Crear transacción en WebPay a través de la API
+      const response = await fetch('/api/webpay/create-transaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al conectar con WebPay');
+      }
+
+      const webpayResponse = await response.json();
       
       if (webpayResponse.success && webpayResponse.url) {
         console.log('✅ Redirigiendo a WebPay:', webpayResponse.url);

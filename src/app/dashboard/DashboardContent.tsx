@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { User, PlusCircle, Edit2, Trash2, BarChart3, History } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 import { useProductContext } from "@/contexts/ProductContext";
@@ -10,7 +10,10 @@ import StockHistory from "@/components/StockHistory";
 import { Switch } from '@headlessui/react';
 
 export default function DashboardContent() {
+  const { data: session } = useSession();
+  
   // Estado para el formulario de producto
+  const [optimisticFeatured, setOptimisticFeatured] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -85,6 +88,11 @@ export default function DashboardContent() {
       refreshCategories();
     }
   }, [categories.length, refreshCategories]);
+
+  // Limpiar estado optimista cuando se recargan los productos
+  useEffect(() => {
+    setOptimisticFeatured({});
+  }, [products]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -287,7 +295,7 @@ export default function DashboardContent() {
           <h1 className="text-2xl font-bold text-brand-principal">Panel de Administración</h1>
         </div>
         <p className="text-brand-principal mb-4">
-          ¡Bienvenida, Karen! <span role="img" aria-label="saludo">👋</span> Aquí podrás gestionar productos, ver estadísticas y administrar tu tienda.
+          ¡Bienvenido, {session?.user?.name || 'Administrador'}! <span role="img" aria-label="saludo">👋</span> Aquí podrás gestionar productos, ver estadísticas y administrar tu tienda.
         </p>
         
         {/* Pestañas del dashboard */}
@@ -420,17 +428,34 @@ export default function DashboardContent() {
                                     <td className="px-2 py-2 break-words max-w-[120px] whitespace-normal">{cat.name}</td>
                                     <td className="px-2 py-2 text-center">
                                       <Switch
-                                        checked={p.featured}
+                                        checked={optimisticFeatured[p.id] !== undefined ? optimisticFeatured[p.id] : p.featured}
                                         onChange={async (value) => {
-                                          // Actualizar el campo 'featured' vía API
+                                          // Actualización optimista inmediata
+                                          setOptimisticFeatured(prev => ({ ...prev, [p.id]: value }));
+                                          
                                           try {
-                                            await fetch(`/api/productos/${p.id}`, {
+                                            const response = await fetch(`/api/productos/${p.id}/featured`, {
                                               method: 'PUT',
                                               headers: { 'Content-Type': 'application/json' },
-                                              body: JSON.stringify({ ...p, featured: value }),
+                                              body: JSON.stringify({ featured: value }),
                                             });
-                                            refreshProducts();
+                                            
+                                            if (!response.ok) {
+                                              throw new Error('Error al actualizar destacado');
+                                            }
+                                            
+                                            // Limpiar el estado optimista después del éxito
+                                            setOptimisticFeatured(prev => {
+                                              const newState = { ...prev };
+                                              delete newState[p.id];
+                                              return newState;
+                                            });
+                                            
+                                            console.log(`Producto ${p.name} ${value ? 'marcado' : 'desmarcado'} como destacado`);
                                           } catch (err) {
+                                            // Revertir el estado optimista en caso de error
+                                            setOptimisticFeatured(prev => ({ ...prev, [p.id]: p.featured }));
+                                            console.error('Error al actualizar destacado:', err);
                                             alert('Error al actualizar destacado');
                                           }
                                         }}

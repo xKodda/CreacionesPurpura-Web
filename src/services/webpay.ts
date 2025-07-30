@@ -80,9 +80,12 @@ class WebPayService {
       console.log('✅ Respuesta de WebPay:', webpayData);
 
       if (webpayData.token && webpayData.url) {
+        // Construir la URL correcta con el token
+        const correctUrl = `${webpayData.url}?token_ws=${webpayData.token}`;
+        
         return {
           success: true,
-          url: webpayData.url,
+          url: correctUrl,
           token: webpayData.token
         };
       } else {
@@ -105,10 +108,11 @@ class WebPayService {
     // Simular respuesta de WebPay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
+    const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const mockResponse: WebPayResponse = {
       success: true,
-      url: `${WEBPAY_CONFIG.baseUrl}/webpay/v1.2/transactions/${paymentData.orderId}`,
-      token: `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      url: `${WEBPAY_CONFIG.baseUrl}/webpayserver/init_transaction.cgi?token_ws=${mockToken}`,
+      token: mockToken
     };
 
     console.log('✅ Transacción WebPay simulada:', mockResponse);

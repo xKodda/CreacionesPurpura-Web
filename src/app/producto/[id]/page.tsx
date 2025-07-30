@@ -7,6 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Check } from 'lucide-react';
 import Toast from '@/components/Toast';
 import { useProducts } from '@/hooks/useProducts';
+import { Product as ProductType } from '@/types/product';
 
 export default function ProductDetailPage({ params }: any) {
   const { getProduct } = useProducts();
@@ -67,16 +68,23 @@ export default function ProductDetailPage({ params }: any) {
 
   const handleAddToCart = () => {
     if (product) {
-      addItem({
-        ...product,
+      // Convertir el producto al tipo esperado por el carrito
+      const cartProduct: ProductType = {
+        id: product.id,
+        name: product.name,
+        description: product.description || '',
+        price: product.price,
         image: product.imageUrl || '/placeholder-product.jpg',
         category: product.category?.name || 'Sin categoría',
-        inStock: product.stock > 0,
         rating: 4.5,
         reviews: 0,
+        inStock: product.stock > 0,
+        stock: product.stock,
         isNew: false,
         isOnSale: false,
-      });
+      };
+      
+      addItem(cartProduct);
       setAdded(true);
       setShowToast(true);
       setTimeout(() => setAdded(false), 800);

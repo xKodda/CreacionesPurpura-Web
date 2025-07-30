@@ -111,11 +111,17 @@ export default function Header() {
                 </button>
               </div>
             )}
-            {/* Login link visible solo si no hay sesión */}
+            {/* Login/Register links visible solo si no hay sesión */}
             {status === "unauthenticated" && (
-              <Link href="/login" className="text-xs text-brand-principal opacity-40 hover:opacity-90 hover:text-brand-acento transition-all font-medium mr-2 hidden md:inline" tabIndex={-1} aria-label="Acceso administrador">
-                Iniciar sesión
-              </Link>
+              <div className="flex items-center gap-2 hidden md:flex">
+                <Link href="/register" className="text-xs text-brand-principal hover:text-brand-acento transition-all font-medium">
+                  Crear cuenta
+                </Link>
+                <span className="text-xs text-gray-400">|</span>
+                <Link href="/login" className="text-xs text-brand-principal opacity-40 hover:opacity-90 hover:text-brand-acento transition-all font-medium" tabIndex={-1} aria-label="Acceso administrador">
+                  Iniciar sesión
+                </Link>
+              </div>
             )}
             <Link href="/carrito" id="cart-icon">
               <AnimatedCartIcon itemCount={state.itemCount} />
@@ -191,11 +197,16 @@ export default function Header() {
                   </button>
                 </div>
               )}
-              {/* Login link solo si no hay sesión */}
+              {/* Login/Register links solo si no hay sesión */}
               {status === "unauthenticated" && (
-                <Link href="/login" className="block px-3 py-2 text-xs text-brand-principal opacity-40 hover:opacity-90 hover:text-brand-acento transition-all font-medium mt-2" tabIndex={-1} aria-label="Acceso administrador">
-                  Iniciar sesión
-                </Link>
+                <div className="mt-2 space-y-1">
+                  <Link href="/register" className="block px-3 py-2 text-xs text-brand-principal hover:text-brand-acento transition-all font-medium">
+                    Crear cuenta
+                  </Link>
+                  <Link href="/login" className="block px-3 py-2 text-xs text-brand-principal opacity-40 hover:opacity-90 hover:text-brand-acento transition-all font-medium" tabIndex={-1} aria-label="Acceso administrador">
+                    Iniciar sesión
+                  </Link>
+                </div>
               )}
             </div>
           </div>

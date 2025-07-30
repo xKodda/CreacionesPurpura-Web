@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
         comunas: { orderBy: { name: 'asc' } }
       }
     });
-    return NextResponse.json({ regiones });
+    return NextResponse.json(regiones);
   } catch (error) {
     console.error('Error obteniendo regiones:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });

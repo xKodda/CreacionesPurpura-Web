@@ -1,8 +1,8 @@
+'use client';
+
 import { notFound } from 'next/navigation';
 import { useProducts } from '@/hooks/useProducts';
 import CategoryProductsPage from './category-products-page';
-
-'use client';
 
 export default function Page({ params }: any) {
   const { categories, getProductsByCategory } = useProducts();

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/hooks/useProducts';
+import { Product as ProductType } from '@/types/product';
 import { useCart } from '@/contexts/CartContext';
 import { useState, useRef } from 'react';
 import { Check } from 'lucide-react';
@@ -35,16 +36,24 @@ export default function AnimatedProductCard({ product }: AnimatedProductCardProp
     e.stopPropagation();
     if (product.stock > 0) {
       setAdded(true);
-      addItem({
-        ...product,
+      
+      // Convertir el producto al tipo esperado por el carrito
+      const cartProduct: ProductType = {
+        id: product.id,
+        name: product.name,
+        description: product.description || '',
+        price: product.price,
         image: product.imageUrl || '/placeholder-product.jpg',
         category: product.category?.name || 'Sin categoría',
-        inStock: product.stock > 0,
         rating: 4.5,
         reviews: 0,
+        inStock: product.stock > 0,
+        stock: product.stock,
         isNew: isNew(),
         isOnSale: false,
-      });
+      };
+      
+      addItem(cartProduct);
       // Vuelo realista
       const btn = buttonRef.current;
       const cart = document.getElementById('cart-icon');
